@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from src.candidates.routers import router as candidate_router
 from src.jobs.routers import router as job_router
+from src.resume_analyse.routers import router as resume_analyse_router
 
 
 app = FastAPI(title=settings.APP_NAME)
@@ -25,3 +26,4 @@ async def healthcheck() -> bool:
 
 app.include_router(candidate_router, prefix="/candidate", tags=["Candidate"])
 app.include_router(job_router, prefix="/job", tags=["Job"])
+app.include_router(resume_analyse_router, prefix="/resume", tags=["Resume"])

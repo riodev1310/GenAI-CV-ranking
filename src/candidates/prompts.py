@@ -1,12 +1,36 @@
 system_prompt_candidate = f"""
-Let's think step by step.
-CV details might be out of order or incomplete.
-Analyze the CV concerning the candidate's experience and career. From this, derive logical conclusions about their technical skills, experience, and soft skills.
-The format for educational qualifications should be: Degree - School/University/Organization - GPA - Year of Graduation. It's acceptable if some details are missing.
-Experience should include experienced time and job name field of work based on projects and experiences.
-Ensure that technical skills are mentioned explicitly and are not broad categories.
-Responsibilities can get information from projects and experiences of candidate.
-All comments should use singular pronouns such as "he", "she", "the candidate", or the candidate's name.
+Analyze the candidate's resume step by step, retrieving accurate and explicit information as presented. If the information is missing or incomplete, leave the field blank. Use the following structure for a precise and concise output:
+
+#### Candidate Details
+1. **Name**: Extract the full name from the resume.
+2. **Contact Information**: Include phone number and email as listed in the resume.
+
+#### Educational Qualifications
+- **Degree**: Format each entry as follows:
+  *Degree - School/University/Organization - GPA (if available) - Year of Graduation (if available)*.
+- If multiple degrees exist, list them in chronological order, from the earliest to the most recent.
+
+#### Work Experience
+- Extract **job titles**, **companies/organizations**, and **tenure (start and end dates)**.
+- Format each entry: *Job Title - Company/Organization - Start Date to End Date (or Present)*, followed by a bullet-pointed list of responsibilities.
+
+#### Technical Skills
+- List all technologies, tools, programming languages, frameworks, or platforms explicitly mentioned in the resume.
+- Avoid broad categories like "software development" unless no specifics are provided.
+
+#### Responsibilities
+- Extract task-based and project-based descriptions that detail what the candidate contributed to their roles. Include metrics or outcomes when mentioned.
+
+#### Certificates and Training
+- List all certifications or training programs, including the issuing organization and year (if available).
+
+#### Soft Skills
+- Deduce soft skills from the resume (e.g., leadership, communication, teamwork, problem-solving). Explicitly state if the candidate has language proficiencies.
+
+#### Additional Information
+- Include any extracurricular activities, volunteer work, or notable achievements if explicitly listed.
+
+Provide all responses in a structured format with clear sections. Avoid assumptions and limit inference to what is explicitly supported by the resume.
 """
 
 fn_candidate_analysis = [
@@ -18,63 +42,83 @@ fn_candidate_analysis = [
             "properties": {
                 "candidate_name": {
                     "type": "string",
-                    "description": "Name of the candidate.",
+                    "description": "Name of the candidate."
                 },
                 "phone_number": {
                     "type": "string",
-                    "description": "Phone number of the candidate.",
+                    "description": "Phone number of the candidate."
                 },
                 "email": {
                     "type": "string",
-                    "description": "Email of candidate. e.g. jackey@gmail.com, hinata@outlook.com",
+                    "description": "Email of candidate. e.g. jackey@gmail.com, hinata@outlook.com"
                 },
                 "degree": {
                     "type": "array",
                     "items": {
-                        "type": "string",
+                        "type": "string"
                     },
-                    "description": "educational qualifications. e.g., Bachelor's degree in Computer Science - FPT University - 2024",
+                    "description": "Educational qualifications. e.g., Bachelor's degree in Computer Science - FPT University - 2024"
                 },
                 "experience": {
                     "type": "array",
                     "items": {
-                        "type": "string",
+                        "type": "string"
                     },
-                    "description": "Summary experiences of each field candidate worked.",
+                    "description": "Extract **job titles**, **companies/organizations**, and **tenure (start and end dates)**."
                 },
                 "technical_skill": {
                     "type": "array",
                     "items": {
-                        "type": "string",
+                        "type": "string"
                     },
-                    "description": "specific technical skills and proficiencies. e.g. Java,  Python, Linux, SQL.",
+                    "description": "List all technologies, tools, programming languages, frameworks, or platforms explicitly mentioned in the resume."
                 },
                 "responsibility": {
                     "type": "array",
                     "items": {
-                        "type": "string",
+                        "type": "string"
                     },
-                    "description": "Sumarry responsibilities candidate work. e.g. Developed a fitness application for bodybuilding exercises on Android using Room Database, RxJava 2, and Retrofit 2.",
+                    "description": "Extract task-based and project-based descriptions that detail what the candidate contributed to their roles. Include metrics or outcomes when mentioned."
                 },
                 "certificate": {
                     "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Certificates achieved. e.g., Advanced Data Analysis, Basic SQL.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Certificates achieved. e.g., Advanced Data Analysis, Basic SQL."
                 },
                 "soft_skill": {
                     "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Soft skills of the candidate inferred from their resume. Special attention should be paid to language and leadership skills. e.g. Language skill, Leadership skills, critical thinking, problem-solving.",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Deduce soft skills from the resume (e.g., leadership, communication, teamwork, problem-solving). Explicitly state if the candidate has language proficiencies."
                 },
-                "comment": {
-                    "type": "string",
-                    "description": "A summary about candidate, what is the strong point, what is special in the candidate. e.g. The candidate has good skill in Python, he have strong points in AI model tuning. He should apply for AI Engineer.",
+                "additional_information": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "category": {
+                                "type": "string",
+                                "description": "The category or type of additional information. For example: Membership, Hobbies, Wellness Activities, Volunteer Experience."
+                            },
+                            "details": {
+                                "type": "string",
+                                "description": "Specific details or descriptions related to the category. For example: Member of university's Honor Society, Yoga, Skiing, or Literature."
+                            }
+                        },
+                        "required": ["category", "details"]
+                    },
+                    "description": "Include any additional information about the candidate, such as extracurricular activities, hobbies, wellness activities, interests, volunteer work, or notable achievements."
                 },
                 "job_recommended": {
                     "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Recommend what jobs the candidate should apply. e.g. Fullstack Web Developer, Python Developer, AI Engineer, Data Analytics",
-                },
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Recommend what jobs the candidate should apply. e.g. Fullstack Web Developer, Python Developer, AI Engineer, Data Analytics."
+                }
             },
             "required": [
                 "candidate_name",
@@ -86,9 +130,9 @@ fn_candidate_analysis = [
                 "responsibility",
                 "certificate",
                 "soft_skill",
-                "comment",
-                "job_recommended",
-            ],
-        },
+                "additional_information",
+                "job_recommended"
+            ]
+        }
     }
 ]
